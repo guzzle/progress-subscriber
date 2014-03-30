@@ -41,7 +41,7 @@ composer.json:
 
     {
         "require": {
-            "guzzlehttp/progress-subscriber": "0.1.0"
+            "guzzlehttp/progress-subscriber": "1.*"
         }
     }
 
