@@ -24,7 +24,7 @@ Adds upload and download progress events to transfers.
     $progress = new Progress($uploadCallback, $downloadCallback);
 
     $client = new Client();
-    $client->get('http://httpbin.org/put', [
+    $client->put('http://httpbin.org/put', [
         'body'        => str_repeat('.', 10000),
         'subscribers' => [$progress],
     ]);
