@@ -1,9 +1,11 @@
 <?php
-
 namespace GuzzleHttp\Subscriber\Progress;
 
 use GuzzleHttp\Stream\StreamDecoratorTrait;
 use GuzzleHttp\Stream\StreamInterface;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Message\RequestInterface;
+use GuzzleHttp\Message\ResponseInterface;
 
 /**
  * Adds download progress events to a stream.
@@ -18,20 +20,32 @@ class DownloadProgressStream implements StreamInterface
 
     private $expectedSize;
     private $reachedEnd;
+    private $client;
+    private $request;
+    private $response;
 
     /**
-     * @param StreamInterface $stream       Stream to wrap
-     * @param callable        $notify       Invoked as data is written
-     * @param int             $expectedSize Expected number of bytes to write
+     * @param StreamInterface   $stream       Stream to wrap
+     * @param callable          $notify       Invoked as data is written
+     * @param int               $expectedSize Expected number of bytes to write
+     * @param ClientInterface   $client       Client sending the request
+     * @param RequestInterface  $request      Request being sent
+     * @param ResponseInterface $response     Response being received
      */
     public function __construct(
         StreamInterface $stream,
         callable $notify,
-        $expectedSize
+        $expectedSize,
+        ClientInterface $client,
+        RequestInterface $request,
+        ResponseInterface $response
     ) {
         $this->stream = $stream;
         $this->notify = $notify;
         $this->expectedSize = $expectedSize;
+        $this->client = $client;
+        $this->request = $request;
+        $this->response = $response;
     }
 
     public function write($string)
@@ -41,7 +55,14 @@ class DownloadProgressStream implements StreamInterface
         if (!$this->reachedEnd) {
             $this->reachedEnd = $this->tell() >= $this->expectedSize;
             if ($result) {
-                call_user_func($this->notify, $this->expectedSize, $this->tell());
+                call_user_func(
+                    $this->notify,
+                    $this->expectedSize,
+                    $this->tell(),
+                    $this->client,
+                    $this->request,
+                    $this->response
+                );
             }
         }
 

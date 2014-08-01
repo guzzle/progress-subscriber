@@ -1,5 +1,4 @@
 <?php
-
 namespace GuzzleHttp\Tests\Subscriber\Progress;
 
 use GuzzleHttp\Adapter\MockAdapter;

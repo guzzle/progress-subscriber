@@ -1,5 +1,4 @@
 <?php
-
 namespace GuzzleHttp\Subscriber\Progress;
 
 use GuzzleHttp\Event\RequestEvents;
@@ -51,7 +50,13 @@ class Progress implements SubscriberInterface
         }
 
         // Wrap the existing request body in an upload decorator.
-        $progressBody = new UploadProgressStream($body, $this->uploadProgress);
+        $progressBody = new UploadProgressStream(
+            $body,
+            $this->uploadProgress,
+            $event->getClient(),
+            $event->getRequest()
+        );
+
         $event->getRequest()->setBody($progressBody);
     }
 
@@ -68,7 +73,10 @@ class Progress implements SubscriberInterface
         $response->setBody(new DownloadProgressStream(
             $response->getBody() ?: new Stream(fopen('php://temp', 'r+')),
             $this->downloadProgress,
-            (int) $size
+            (int) $size,
+            $event->getClient(),
+            $event->getRequest(),
+            $event->getResponse()
         ));
     }
 }
